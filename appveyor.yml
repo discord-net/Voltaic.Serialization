@@ -1,0 +1,48 @@
+version: build-{build}
+branches:
+  only:
+  - master
+image: Visual Studio 2017
+
+nuget:
+  disable_publish_on_pr: true
+pull_requests:
+  do_not_increment_build_number: true
+clone_folder: C:\Voltaic.Serialization
+
+environment:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+init:
+- ps: $Env:BUILD = "$($Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0"))"
+
+build_script:
+- ps: appveyor-retry dotnet restore Voltaic.Serialization.sln -v Minimal /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+- ps: dotnet build Voltaic.Serialization.sln -c "Release" /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+
+test_script:
+- ps: dotnet test "test/Voltaic.Serialization.Utf8.Tests/Voltaic.Serialization.Utf8.Tests.csproj" -c "Release" --no-build /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+- ps: dotnet test "test/Voltaic.Serialization.Json.Tests/Voltaic.Serialization.Json.Tests.csproj" -c "Release" --no-build /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+- ps: dotnet test "test/Voltaic.Serialization.Etf.Tests/Voltaic.Serialization.Etf.Tests.csproj" -c "Release" --no-build /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+
+after_test:
+- ps: dotnet pack "src\Voltaic.Serialization\Voltaic.Serialization.csproj" -c "Release" -o "../../artifacts" --no-build /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+- ps: dotnet pack "src\Voltaic.Serialization.Utf8\Voltaic.Serialization.Utf8.csproj" -c "Release" -o "../../artifacts" --no-build /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+- ps: dotnet pack "src\Voltaic.Serialization.Json\Voltaic.Serialization.Json.csproj" -c "Release" -o "../../artifacts" --no-build /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+- ps: dotnet pack "src\Voltaic.Serialization.Etf\Voltaic.Serialization.Etf.csproj" -c "Release" -o "../../artifacts" --no-build /p:BuildNumber="$Env:BUILD" /p:IsTagBuild="$Env:APPVEYOR_REPO_TAG"
+- ps: Get-ChildItem artifacts\*.nupkg | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+
+deploy:
+- provider: NuGet
+  server: https://www.myget.org/F/discord-net/api/v2/package
+  api_key:
+    secure: Jl7BXeUjRnkVHDMBuUWSXcEOkrli1PBleW2IiLyUs5j63UNUNp1hcjaUJRujx9lz
+  symbol_server: https://www.myget.org/F/discord-net/symbols/api/v2/package
+  on:
+    branch: master
+- provider: NuGet
+  server: https://www.myget.org/F/rogueexception/api/v2/package
+  api_key:
+    secure: D+vW2O2LBf/iJb4f+q8fkyIW2VdIYIGxSYLWNrOD4BHlDBZQlJipDbNarWjUr2Kn
+  symbol_server: https://www.myget.org/F/rogueexception/symbols/api/v2/package
+  on:
+    branch: master
