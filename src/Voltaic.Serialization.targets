@@ -1,8 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <PackageLicenseUrl>http://opensource.org/licenses/MIT</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/RogueException/Wumpus.Net</PackageProjectUrl>
-    <RepositoryUrl>git://github.com/RogueException/Wumpus.Net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/RogueException/Voltaic.Serialization</PackageProjectUrl>
+    <RepositoryUrl>git://github.com/RogueException/Voltaic.Serialization</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <LangVersion>latest</LangVersion>
     <VersionPrefix>0.2.1</VersionPrefix>
