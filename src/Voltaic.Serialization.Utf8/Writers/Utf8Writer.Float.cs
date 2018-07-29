@@ -7,7 +7,7 @@ namespace Voltaic.Serialization.Utf8
     {
         public static bool TryWrite(ref ResizableMemory<byte> writer, float value, StandardFormat standardFormat)
         {
-            var data = writer.RequestSpan(13); // -3.402823E+38
+            var data = writer.RequestSpan(14); // -3.402823E+038
             if (!Utf8Formatter.TryFormat(value, data, out int bytesWritten, standardFormat))
                 return false;
             writer.Advance(bytesWritten);

@@ -190,8 +190,10 @@ namespace Voltaic.Serialization.Json
                                             sequenceWriter.Push(value);
                                         }
 
-                                        var buffer = builder.RequestSpan(sequenceWriter.Length * 2);
                                         var sequenceBytes = MemoryMarshal.AsBytes(sequenceWriter.AsReadOnlySpan());
+                                        if (Encodings.Utf16.ToUtf8Length(sequenceBytes, out int bytesNeeded) != OperationStatus.Done)
+                                            return StringOperationStatus.Failed;
+                                        var buffer = builder.RequestSpan(bytesNeeded);
                                         if (Encodings.Utf16.ToUtf8(sequenceBytes, buffer, out _, out int bytesWritten) != OperationStatus.Done)
                                             return StringOperationStatus.Failed;
                                         builder.Advance(bytesWritten);
