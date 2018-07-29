@@ -17,7 +17,7 @@ namespace Voltaic.Serialization.Etf
                 // Swap endian
                 Span<double> src = stackalloc double[] { value };
                 var srcBytes = MemoryMarshal.AsBytes(src);
-                var dst = writer.GetSpan(8);
+                var dst = writer.RequestSpan(8);
                 
                 dst[0] = srcBytes[7];
                 dst[1] = srcBytes[6];
@@ -55,7 +55,7 @@ namespace Voltaic.Serialization.Etf
                 // Swap endian
                 Span<double> src = stackalloc double[] { value };
                 var srcBytes = MemoryMarshal.AsBytes(src);
-                var dst = writer.GetSpan(8);
+                var dst = writer.RequestSpan(8);
 
                 dst[0] = srcBytes[7];
                 dst[1] = srcBytes[6];

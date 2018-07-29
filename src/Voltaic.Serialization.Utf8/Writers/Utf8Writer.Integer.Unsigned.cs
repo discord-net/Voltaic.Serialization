@@ -7,7 +7,7 @@ namespace Voltaic.Serialization.Utf8
     {
         public static bool TryWrite(ref ResizableMemory<byte> writer, byte value, StandardFormat standardFormat)
         {
-            var data = writer.GetSpan(3); // 255
+            var data = writer.RequestSpan(3); // 255
             if (!Utf8Formatter.TryFormat(value, data, out int bytesWritten, standardFormat))
                 return false;
             writer.Advance(bytesWritten);
@@ -16,7 +16,7 @@ namespace Voltaic.Serialization.Utf8
 
         public static bool TryWrite(ref ResizableMemory<byte> writer, ushort value, StandardFormat standardFormat)
         {
-            var data = writer.GetSpan(5); // 65536
+            var data = writer.RequestSpan(5); // 65536
             if (!Utf8Formatter.TryFormat(value, data, out int bytesWritten, standardFormat))
                 return false;
             writer.Advance(bytesWritten);
@@ -25,7 +25,7 @@ namespace Voltaic.Serialization.Utf8
 
         public static bool TryWrite(ref ResizableMemory<byte> writer, uint value, StandardFormat standardFormat)
         {
-            var data = writer.GetSpan(10); // 4294967295
+            var data = writer.RequestSpan(10); // 4294967295
             if (!Utf8Formatter.TryFormat(value, data, out int bytesWritten, standardFormat))
                 return false;
             writer.Advance(bytesWritten);
@@ -34,7 +34,7 @@ namespace Voltaic.Serialization.Utf8
 
         public static bool TryWrite(ref ResizableMemory<byte> writer, ulong value, StandardFormat standardFormat)
         {
-            var data = writer.GetSpan(20); // 18446744073709551615
+            var data = writer.RequestSpan(20); // 18446744073709551615
             if (!Utf8Formatter.TryFormat(value, data, out int bytesWritten, standardFormat))
                 return false;
             writer.Advance(bytesWritten);

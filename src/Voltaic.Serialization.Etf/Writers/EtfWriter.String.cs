@@ -51,7 +51,7 @@ namespace Voltaic.Serialization.Etf
                 return false;
 
             writer.Push((byte)EtfTokenType.Binary);
-            BinaryPrimitives.WriteUInt32BigEndian(writer.GetSpan(4), (uint)value.Length);
+            BinaryPrimitives.WriteUInt32BigEndian(writer.RequestSpan(4), (uint)value.Length);
             writer.Advance(4);
             if (!Utf8Writer.TryWriteString(ref writer, value))
                 return false;

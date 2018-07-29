@@ -12,7 +12,7 @@ namespace Voltaic.Serialization.Utf8
             var valueBytes = MemoryMarshal.AsBytes(chars);
             if (Encodings.Utf16.ToUtf8Length(valueBytes, out var length) != OperationStatus.Done)
                 return false;
-            var data = writer.GetSpan(length);
+            var data = writer.RequestSpan(length);
             if (Encodings.Utf16.ToUtf8(valueBytes, data, out _, out _) != OperationStatus.Done)
                 return false;
             writer.Advance(length);
@@ -24,7 +24,7 @@ namespace Voltaic.Serialization.Utf8
             var valueBytes = MemoryMarshal.AsBytes(value.AsSpan());
             if (Encodings.Utf16.ToUtf8Length(valueBytes, out var length) != OperationStatus.Done)
                 return false;
-            var data = writer.GetSpan(length);
+            var data = writer.RequestSpan(length);
             if (Encodings.Utf16.ToUtf8(valueBytes, data, out _, out _) != OperationStatus.Done)
                 return false;
             writer.Advance(length);
@@ -40,7 +40,7 @@ namespace Voltaic.Serialization.Utf8
             => TryWriteString(ref writer, value.Span);
         public static bool TryWriteString(ref ResizableMemory<byte> writer, ReadOnlySpan<byte> value)
         {
-            var dstSpan = writer.GetSpan(value.Length);
+            var dstSpan = writer.RequestSpan(value.Length);
             value.CopyTo(dstSpan);
             writer.Advance(value.Length);
             return true;

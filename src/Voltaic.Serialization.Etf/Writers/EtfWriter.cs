@@ -9,7 +9,7 @@ namespace Voltaic.Serialization.Etf
 
         public static bool TryWriteNull(ref ResizableMemory<byte> writer)
         {
-            _nilValue.Span.CopyTo(writer.GetSpan(5));
+            _nilValue.Span.CopyTo(writer.RequestSpan(5));
             writer.Advance(5);
             return true;
         }

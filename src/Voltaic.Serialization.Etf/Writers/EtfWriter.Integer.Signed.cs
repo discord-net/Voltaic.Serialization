@@ -21,7 +21,7 @@ namespace Voltaic.Serialization.Etf
                 else
                 {
                     writer.Push((byte)EtfTokenType.Integer);
-                    BinaryPrimitives.WriteInt32BigEndian(writer.GetSpan(4), value);
+                    BinaryPrimitives.WriteInt32BigEndian(writer.RequestSpan(4), value);
                     writer.Advance(4);
                 }
             }
@@ -49,7 +49,7 @@ namespace Voltaic.Serialization.Etf
                     return TryWrite(ref writer, (byte)value, standardFormat);
 
                 writer.Push((byte)EtfTokenType.Integer);
-                BinaryPrimitives.WriteInt32BigEndian(writer.GetSpan(4), value);
+                BinaryPrimitives.WriteInt32BigEndian(writer.RequestSpan(4), value);
                 writer.Advance(4);
             }
             else
@@ -76,7 +76,7 @@ namespace Voltaic.Serialization.Etf
                     return TryWrite(ref writer, (byte)value, standardFormat);
 
                 writer.Push((byte)EtfTokenType.Integer);
-                BinaryPrimitives.WriteInt32BigEndian(writer.GetSpan(4), value);
+                BinaryPrimitives.WriteInt32BigEndian(writer.RequestSpan(4), value);
                 writer.Advance(4);
             }
             else
@@ -109,15 +109,15 @@ namespace Voltaic.Serialization.Etf
                 if (value >= 0)
                 {
                     writer.Push(0);
-                    BinaryPrimitives.WriteUInt64LittleEndian(writer.GetSpan(8), (ulong)value);
+                    BinaryPrimitives.WriteUInt64LittleEndian(writer.RequestSpan(8), (ulong)value);
                 }
                 else
                 {
                     writer.Push(1);
                     if (value == long.MinValue)
-                        BinaryPrimitives.WriteUInt64LittleEndian(writer.GetSpan(8), 9223372036854775808);
+                        BinaryPrimitives.WriteUInt64LittleEndian(writer.RequestSpan(8), 9223372036854775808);
                     else
-                        BinaryPrimitives.WriteUInt64LittleEndian(writer.GetSpan(8), (ulong)-value);
+                        BinaryPrimitives.WriteUInt64LittleEndian(writer.RequestSpan(8), (ulong)-value);
                 }
                 writer.Advance(8);
             }

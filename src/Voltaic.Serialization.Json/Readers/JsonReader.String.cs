@@ -126,7 +126,7 @@ namespace Voltaic.Serialization.Json
                             {
                                 // Append previous part to builder
                                 int bytes = i - start;
-                                var buffer = builder.GetSpan(bytes);
+                                var buffer = builder.RequestSpan(bytes);
                                 remaining.Slice(start, bytes).CopyTo(buffer);
                                 builder.Advance(bytes);
                             }
@@ -190,7 +190,7 @@ namespace Voltaic.Serialization.Json
                                             sequenceWriter.Push(value);
                                         }
 
-                                        var buffer = builder.GetSpan(sequenceWriter.Length * 2);
+                                        var buffer = builder.RequestSpan(sequenceWriter.Length * 2);
                                         var sequenceBytes = MemoryMarshal.AsBytes(sequenceWriter.AsReadOnlySpan());
                                         if (Encodings.Utf16.ToUtf8(sequenceBytes, buffer, out _, out int bytesWritten) != OperationStatus.Done)
                                             return StringOperationStatus.Failed;
@@ -219,7 +219,7 @@ namespace Voltaic.Serialization.Json
                             if (i != start)
                             {
                                 int bytes = i - start;
-                                var buffer = builder.GetSpan(bytes);
+                                var buffer = builder.RequestSpan(bytes);
                                 remaining.Slice(start, bytes).CopyTo(buffer);
                                 builder.Advance(bytes);
                             }

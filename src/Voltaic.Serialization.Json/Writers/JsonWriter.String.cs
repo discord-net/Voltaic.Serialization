@@ -91,7 +91,7 @@ namespace Voltaic.Serialization.Json
                         if (i != start)
                         {
                             int bytes = i - start;
-                            var buffer = writer.GetSpan(bytes);
+                            var buffer = writer.RequestSpan(bytes);
                             value.Slice(start, bytes).CopyTo(buffer);
                             writer.Advance(bytes);
                         }
@@ -108,7 +108,7 @@ namespace Voltaic.Serialization.Json
                     if (i != start)
                     {
                         int bytes = i - start;
-                        var buffer = writer.GetSpan(bytes);
+                        var buffer = writer.RequestSpan(bytes);
                         value.Slice(start, bytes).CopyTo(buffer);
                         writer.Advance(bytes);
                     }
@@ -135,7 +135,7 @@ namespace Voltaic.Serialization.Json
                             writer.Push((byte)'t');
                             break;
                         default:
-                            var escape = writer.GetSpan(6);
+                            var escape = writer.RequestSpan(6);
                             escape[0] = (byte)'\\';
                             escape[1] = (byte)'u';
                             escape[2] = (byte)'0';
@@ -152,7 +152,7 @@ namespace Voltaic.Serialization.Json
                     if (i != start)
                     {
                         int bytes = i - start;
-                        var buffer = writer.GetSpan(bytes);
+                        var buffer = writer.RequestSpan(bytes);
                         value.Slice(start, i - start).CopyTo(buffer);
                         writer.Advance(bytes);
                     }
@@ -166,7 +166,7 @@ namespace Voltaic.Serialization.Json
 
                     for (int j = 0; j < bytesWritten / 2; j++)
                     {
-                        var buffer2 = writer.GetSpan(6);
+                        var buffer2 = writer.RequestSpan(6);
                         buffer2[0] = (byte)'\\';
                         buffer2[1] = (byte)'u';
                         buffer2[2] = ToHex((byte)((utf16Value[j] >> 12) & 0xF));
@@ -185,7 +185,7 @@ namespace Voltaic.Serialization.Json
             if (i != start)
             {
                 int bytes = i - start;
-                var buffer = writer.GetSpan(bytes);
+                var buffer = writer.RequestSpan(bytes);
                 value.Slice(start, bytes).CopyTo(buffer);
                 writer.Advance(bytes);
             }

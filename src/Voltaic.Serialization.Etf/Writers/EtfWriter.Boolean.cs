@@ -17,12 +17,12 @@ namespace Voltaic.Serialization.Etf
             {
                 if (value)
                 {
-                    _trueValue.Span.CopyTo(writer.GetSpan(6));
+                    _trueValue.Span.CopyTo(writer.RequestSpan(6));
                     writer.Advance(6);
                 }
                 else
                 {
-                    _falseValue.Span.CopyTo(writer.GetSpan(7));
+                    _falseValue.Span.CopyTo(writer.RequestSpan(7));
                     writer.Advance(7);
                 }
             }
