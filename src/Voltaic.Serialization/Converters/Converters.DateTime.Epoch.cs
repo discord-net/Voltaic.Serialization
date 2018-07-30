@@ -87,19 +87,25 @@ namespace Voltaic.Serialization
             result = default;
             if (!_innerConverter.TryRead(ref remaining, out var units, propMap))
                 return false;
+            long ticks = 0;
             switch (_type)
             {
                 case EpochType.UnixNanos:
-                    result = new DateTimeOffset(units / 100, TimeSpan.Zero);
-                    return true;
+                    ticks = units / 100;
+                    break;
                 case EpochType.UnixMillis:
-                    result = new DateTimeOffset(units * TimeSpan.TicksPerMillisecond, TimeSpan.Zero);
-                    return true;
+                    ticks = units * TimeSpan.TicksPerMillisecond;
+                    break;
                 case EpochType.UnixSeconds:
-                    result = new DateTimeOffset(units * TimeSpan.TicksPerSecond, TimeSpan.Zero);
-                    return true;
+                    ticks = units * TimeSpan.TicksPerSecond;
+                    break;
+                default:
+                    return false;
             }
-            return false;
+            if (ticks > DateTimeOffset.MaxValue.Ticks || ticks < DateTimeOffset.MinValue.Ticks)
+                return false;
+            result = new DateTimeOffset(ticks, TimeSpan.Zero);
+            return true;
         }
         public override bool TryWrite(ref ResizableMemory<byte> writer, DateTimeOffset value, PropertyMap propMap = null)
         {
