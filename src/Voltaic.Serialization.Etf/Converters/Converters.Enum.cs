@@ -34,7 +34,8 @@ namespace Voltaic.Serialization.Etf
             {
                 if (!_valueConverter.TryRead(ref remaining, out var longValue, propMap))
                     return false;
-                return _map.TryFromValue(longValue, out result);
+                result = _map.FromInt64(longValue);
+                return true;
             }
         }
 
@@ -78,7 +79,8 @@ namespace Voltaic.Serialization.Etf
             {
                 if (!_valueConverter.TryRead(ref remaining, out var longValue, propMap))
                     return false;
-                return _map.TryFromValue(longValue, out result);
+                result = _map.FromUInt64(longValue);
+                return true;
             }
         }
 
