@@ -9,25 +9,44 @@ namespace Voltaic.Serialization
 {
     public static class EnumMap
     {
-        public static EnumMap<T> For<T>() where T : struct => EnumMap<T>.Instance;
+        public static EnumMap<T> For<T>() where T : struct, Enum => EnumMap<T>.Instance;
     }
 
-    public class EnumMap<T>
-        where T : struct
+    public abstract class EnumMap<T>
+        where T : struct, Enum
     {
-        public static readonly EnumMap<T> Instance = new EnumMap<T>();
-
-        public bool IsStringEnum { get; } = typeof(T).GetTypeInfo().GetCustomAttribute<ModelStringEnumAttribute>() != null;
-        public bool IsFlagsEnum { get; } = typeof(T).GetTypeInfo().GetCustomAttribute<FlagsAttribute>() != null;
-        public ulong MaxValue { get; }
+        public static readonly EnumMap<T> Instance = CreateInstance();
+        private static EnumMap<T> CreateInstance()
+        {
+            var baseType = Enum.GetUnderlyingType(typeof(T));
+            if (baseType == typeof(sbyte))
+                return new SByteEnumMap<T>();
+            else if (baseType == typeof(short))
+                return new Int16EnumMap<T>();
+            else if (baseType == typeof(int))
+                return new Int32EnumMap<T>();
+            else if (baseType == typeof(long))
+                return new Int64EnumMap<T>();
+            else if (baseType == typeof(byte))
+                return new ByteEnumMap<T>();
+            else if (baseType == typeof(ushort))
+                return new UInt16EnumMap<T>();
+            else if (baseType == typeof(uint))
+                return new UInt32EnumMap<T>();
+            else if (baseType == typeof(ulong))
+                return new UInt64EnumMap<T>();
+            else
+                throw new InvalidOperationException($"{baseType.Name} enums are not supported");
+        }
 
         private readonly Dictionary<string, T> _keyToValue;
         private readonly MemoryDictionary<T> _utf8KeyToValue;
-        private readonly Dictionary<long, T> _intToValue;
-
         private readonly Dictionary<T, string> _valueToKey;
         private readonly Dictionary<T, Utf8String> _valueToUtf8Key;
-        private readonly Dictionary<T, long> _valueToInt;
+
+        public ulong MaxValue { get; }
+        public bool IsStringEnum { get; } = typeof(T).GetTypeInfo().GetCustomAttribute<ModelStringEnumAttribute>() != null;
+        public bool IsFlagsEnum { get; } = typeof(T).GetTypeInfo().GetCustomAttribute<FlagsAttribute>() != null;
 
         public EnumMap()
         {
@@ -39,11 +58,11 @@ namespace Voltaic.Serialization
 
             _keyToValue = new Dictionary<string, T>();
             _utf8KeyToValue = new MemoryDictionary<T>();
-            _intToValue = new Dictionary<long, T>();
+            //_intToValue = new Dictionary<long, T>();
 
             _valueToKey = new Dictionary<T, string>();
             _valueToUtf8Key = new Dictionary<T, Utf8String>();
-            _valueToInt = new Dictionary<T, long>();
+            //_valueToInt = new Dictionary<T, long>();
 
             foreach (T val in Enum.GetValues(typeof(T)).OfType<T>())
             {
@@ -93,8 +112,8 @@ namespace Voltaic.Serialization
                 else
                     throw new SerializationException($"Unsupported underlying enum type: {underlyingType.Name}");
 
-                _intToValue.Add(baseVal, val);
-                _valueToInt.Add(val, baseVal);
+                //_intToValue.Add(baseVal, val);
+                //_valueToInt.Add(val, baseVal);
                 if (baseVal > 0 && (ulong)baseVal > MaxValue)
                     MaxValue = (ulong)baseVal;
             }
@@ -122,30 +141,127 @@ namespace Voltaic.Serialization
             return new Utf8String(value.ToString());
         }
 
-        public T FromInt64(long value)
-        {
-            if (!IsFlagsEnum && _intToValue.TryGetValue(value, out var enumValue))
-                return enumValue;
-            return (T)(ValueType)value;
-        }
-        public T FromUInt64(ulong value)
-        {
-            if (!IsFlagsEnum && _intToValue.TryGetValue((long)value, out var enumValue))
-                return enumValue;
-            return (T)(ValueType)value;
-        }
+        public abstract T FromInt64(long value);
+        public abstract T FromUInt64(ulong value);
 
-        public long ToInt64(T value)
-        {
-            if (!IsFlagsEnum && _valueToInt.TryGetValue(value, out var intValue))
-                return intValue;
-            return (long)(ValueType)value;
-        }
-        public ulong ToUInt64(T value)
-        {
-            if (!IsFlagsEnum && _valueToInt.TryGetValue(value, out var intValue))
-                return (ulong)intValue;
-            return (ulong)(ValueType)value;
-        }
+        public abstract long ToInt64(T value);
+        public abstract ulong ToUInt64(T value);
+
+        //    public T FromInt64(long value)
+        //    {
+        //        if (!IsFlagsEnum && _intToValue.TryGetValue(value, out var enumValue))
+        //            return enumValue;
+        //        return (T)(ValueType)value;
+        //    }
+        //    public T FromUInt64(ulong value)
+        //    {
+        //        if (!IsFlagsEnum && _intToValue.TryGetValue((long)value, out var enumValue))
+        //            return enumValue;
+        //        return (T)(ValueType)value;
+        //    }
+
+        //    public long ToInt64(T value)
+        //    {
+        //        if (!IsFlagsEnum && _valueToInt.TryGetValue(value, out var intValue))
+        //            return intValue;
+        //        return (long)(ValueType)value;
+        //    }
+        //    public ulong ToUInt64(T value)
+        //    {
+        //        if (!IsFlagsEnum && _valueToInt.TryGetValue(value, out var intValue))
+        //            return (ulong)intValue;
+        //        return (ulong)(ValueType)value;
+        //    }
+    }
+
+    // TODO: How do we avoid boxing? Does JIT optimize this?
+    internal class SByteEnumMap<T> : EnumMap<T>
+        where T : struct, Enum
+    {
+        public override T FromInt64(long value) => (T)(ValueType)(sbyte)value;
+        public override long ToInt64(T value) => (sbyte)(ValueType)value;
+
+        public override T FromUInt64(ulong value)
+            => FromInt64((long)value);
+        public override ulong ToUInt64(T value)
+            => (ulong)ToInt64(value);
+    }
+    internal class Int16EnumMap<T> : EnumMap<T>
+        where T : struct, Enum
+    {
+        public override T FromInt64(long value) => (T)(ValueType)(short)value;
+        public override long ToInt64(T value) => (short)(ValueType)value;
+
+        public override T FromUInt64(ulong value)
+            => FromInt64((long)value);
+        public override ulong ToUInt64(T value)
+            => (ulong)ToInt64(value);
+    }
+    internal class Int32EnumMap<T> : EnumMap<T>
+        where T : struct, Enum
+    {
+        public override T FromInt64(long value) => (T)(ValueType)(int)value;
+        public override long ToInt64(T value) => (int)(ValueType)value;
+
+        public override T FromUInt64(ulong value)
+            => FromInt64((long)value);
+        public override ulong ToUInt64(T value)
+            => (ulong)ToInt64(value);
+    }
+    internal class Int64EnumMap<T> : EnumMap<T>
+        where T : struct, Enum
+    {
+        public override T FromInt64(long value) => (T)(ValueType)(long)value;
+        public override long ToInt64(T value) => (long)(ValueType)value;
+
+        public override T FromUInt64(ulong value)
+            => FromInt64((long)value);
+        public override ulong ToUInt64(T value)
+            => (ulong)ToInt64(value);
+    }
+
+    internal class ByteEnumMap<T> : EnumMap<T>
+        where T : struct, Enum
+    {
+        public override T FromUInt64(ulong value) => (T)(ValueType)(byte)value;
+        public override ulong ToUInt64(T value) => (byte)(ValueType)value;
+
+        public override T FromInt64(long value)
+            => FromUInt64((ulong)value);
+        public override long ToInt64(T value)
+            => (long)ToUInt64(value);
+    }
+    internal class UInt16EnumMap<T> : EnumMap<T>
+        where T : struct, Enum
+    {
+        public override T FromUInt64(ulong value) => (T)(ValueType)(ushort)value;
+        public override ulong ToUInt64(T value) => (ushort)(ValueType)value;
+
+        public override T FromInt64(long value)
+            => FromUInt64((ulong)value);
+        public override long ToInt64(T value)
+            => (long)ToUInt64(value);
+    }
+    internal class UInt32EnumMap<T> : EnumMap<T>
+        where T : struct, Enum
+    {
+        public override T FromUInt64(ulong value) => (T)(ValueType)(uint)value;
+        public override ulong ToUInt64(T value) => (uint)(ValueType)value;
+
+        public override T FromInt64(long value)
+            => FromUInt64((ulong)value);
+        public override long ToInt64(T value)
+            => (long)ToUInt64(value);
+    }
+    internal class UInt64EnumMap<T> : EnumMap<T>
+        where T : struct, Enum
+    {
+        public override T FromUInt64(ulong value) => (T)(ValueType)(ulong)value;
+        public override ulong ToUInt64(T value) => (ulong)(ValueType)value;
+
+        public override T FromInt64(long value)
+            => FromUInt64((ulong)value);
+        public override long ToInt64(T value)
+            => (long)ToUInt64(value);
     }
 }

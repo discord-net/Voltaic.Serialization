@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Voltaic.Serialization.Json
 {
     public class Int64EnumJsonConverter<T> : ValueConverter<T>
-        where T : struct // enum
+        where T : struct, Enum
     {
         private readonly ValueConverter<Utf8String> _keyConverter;
         private readonly ValueConverter<long> _valueConverter;
@@ -52,7 +52,7 @@ namespace Voltaic.Serialization.Json
     }
 
     public class UInt64EnumJsonConverter<T> : ValueConverter<T>
-        where T : struct // enum
+        where T : struct, Enum
     {
         private readonly ValueConverter<Utf8String> _keyConverter;
         private readonly ValueConverter<ulong> _valueConverter;

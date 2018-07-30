@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Voltaic.Serialization.Etf
 {
     public class Int64EnumEtfConverter<T> : ValueConverter<T>
-        where T : struct // enum
+        where T : struct, Enum
     {
         private readonly ValueConverter<Utf8String> _keyConverter;
         private readonly ValueConverter<long> _valueConverter;
@@ -49,7 +49,7 @@ namespace Voltaic.Serialization.Etf
     }
 
     public class UInt64EnumEtfConverter<T> : ValueConverter<T>
-        where T : struct // enum
+        where T : struct, Enum
     {
         private readonly ValueConverter<Utf8String> _keyConverter;
         private readonly ValueConverter<ulong> _valueConverter;
