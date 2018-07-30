@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.11.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Voltaic.Serialization/Voltaic.Serialization.csproj">
+      <SetConfiguration>Configuration=Release</SetConfiguration>
+    </ProjectReference>
+    <ProjectReference Include="../../src/Voltaic.Serialization.Json/Voltaic.Serialization.Json.csproj">
+      <SetConfiguration>Configuration=Release</SetConfiguration>
+    </ProjectReference>
+    <ProjectReference Include="../../src/Voltaic.Serialization.Etf/Voltaic.Serialization.Etf.csproj">
+      <SetConfiguration>Configuration=Release</SetConfiguration>
+    </ProjectReference>
+    <ProjectReference Include="../../src/Voltaic.Serialization.Utf8/Voltaic.Serialization.Utf8.csproj">
+      <SetConfiguration>Configuration=Release</SetConfiguration>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
