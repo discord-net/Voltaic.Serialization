@@ -135,6 +135,8 @@ namespace Voltaic.Serialization.Json
             => ReadUtf16(MemoryMarshal.AsBytes(data.AsReadOnlySpan()), converter);
         public T ReadUtf16<T>(ReadOnlyMemory<char> data, ValueConverter<T> converter = null)
             => ReadUtf16(MemoryMarshal.AsBytes(data.Span), converter);
+        public T ReadUtf16<T>(ReadOnlySpan<char> data, ValueConverter<T> converter = null)
+            => ReadUtf16(MemoryMarshal.AsBytes(data), converter);
         public T ReadUtf16<T>(ResizableMemory<byte> data, ValueConverter<T> converter = null)
             => ReadUtf16(data.AsReadOnlySpan(), converter);
         public T ReadUtf16<T>(ReadOnlyMemory<byte> data, ValueConverter<T> converter = null)
@@ -162,6 +164,8 @@ namespace Voltaic.Serialization.Json
             => ReadUtf16(type, MemoryMarshal.AsBytes(data.AsReadOnlySpan()), converter);
         public object ReadUtf16(Type type, ReadOnlyMemory<char> data, ValueConverter converter = null)
             => ReadUtf16(type, MemoryMarshal.AsBytes(data.Span), converter);
+        public object ReadUtf16(Type type, ReadOnlySpan<char> data, ValueConverter converter = null)
+            => ReadUtf16(type, MemoryMarshal.AsBytes(data), converter);
         public object ReadUtf16(Type type, ResizableMemory<byte> data, ValueConverter converter = null)
             => ReadUtf16(type, data.AsReadOnlySpan(), converter);
         public object ReadUtf16(Type type, ReadOnlyMemory<byte> data, ValueConverter converter = null)
