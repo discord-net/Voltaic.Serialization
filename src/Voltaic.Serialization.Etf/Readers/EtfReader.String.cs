@@ -41,7 +41,7 @@ namespace Voltaic.Serialization.Etf
             {
                 case EtfTokenType.String:
                     {
-                        if (remaining.Length < 2)
+                        if (remaining.Length < 3)
                             return false;
                         remaining = remaining.Slice(1);
                         ushort length = BinaryPrimitives.ReadUInt16BigEndian(remaining);
@@ -55,7 +55,7 @@ namespace Voltaic.Serialization.Etf
                     }
                 case EtfTokenType.Binary:
                     {
-                        if (remaining.Length < 4)
+                        if (remaining.Length < 5)
                             return false;
                         remaining = remaining.Slice(1);
                         uint length = BinaryPrimitives.ReadUInt32BigEndian(remaining);

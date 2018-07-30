@@ -31,6 +31,8 @@ namespace Voltaic.Serialization.Etf
             switch (EtfReader.GetTokenType(ref remaining))
             {
                 case EtfTokenType.Map:
+                    if (remaining.Length < 5)
+                        return false;
                     remaining = remaining.Slice(1);
 
                     uint arity = BinaryPrimitives.ReadUInt32BigEndian(remaining); // count
