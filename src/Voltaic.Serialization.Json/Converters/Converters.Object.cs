@@ -34,7 +34,7 @@ namespace Voltaic.Serialization.Json
             }
             remaining = remaining.Slice(1);
 
-            result = _map.CreateUninitialized();;
+            result = _map.CreateUninitialized();
             if (JsonReader.GetTokenType(ref remaining) == JsonTokenType.EndObject)
             {
                 remaining = remaining.Slice(1);
@@ -119,9 +119,10 @@ namespace Voltaic.Serialization.Json
             // Process all deferred properties
             for (int i = 0; i < deferred.Count; i++)
             {
-                if (!_map.TryGetProperty(deferred.GetKey(i), out var innerPropMap, out bool isIgnored))
+                if (!_map.TryGetProperty(deferred.GetKey(i), out var innerPropMap, out _))
                     return false;
                 var value = deferred.GetValue(i);
+
                 if (!innerPropMap.TryRead(result, ref value, dependencies))
                 {
                     if (innerPropMap.IgnoreErrors)

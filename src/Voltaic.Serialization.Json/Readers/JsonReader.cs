@@ -79,8 +79,13 @@ namespace Voltaic.Serialization.Json
             var currentToken = JsonTokenType.None;
 
             int i = 0;
+            bool success = false;
             for (; i < remaining.Length || currentToken != JsonTokenType.None;)
             {
+                // If we skipped an element and returned to the top-most level, stop skipping
+                if (success && currentToken == JsonTokenType.None)
+                    break; 
+
                 byte c = remaining[i];
                 switch (c)
                 {
@@ -100,6 +105,7 @@ namespace Voltaic.Serialization.Json
                             return false;
                         i++;
                         currentToken = (JsonTokenType)stack.Pop();
+                        success = true;
                         break;
                     case (byte)'[':
                         i++;
@@ -111,6 +117,7 @@ namespace Voltaic.Serialization.Json
                             return false;
                         i++;
                         currentToken = (JsonTokenType)stack.Pop();
+                        success = true;
                         break;
                     case (byte)',':
                         if (currentToken != JsonTokenType.StartObject && currentToken != JsonTokenType.StartArray)
@@ -124,12 +131,15 @@ namespace Voltaic.Serialization.Json
                         break;
                     case (byte)'n':
                         i += 4; // ull
+                        success = true;
                         break;
                     case (byte)'t':
                         i += 4; // rue
+                        success = true;
                         break;
                     case (byte)'f':
                         i += 5; // alse
+                        success = true;
                         break;
                     case (byte)'"':
                         i++;
@@ -153,6 +163,7 @@ namespace Voltaic.Serialization.Json
                         }
                         if (incomplete)
                             return false;
+                        success = true;
                         break;
                     case (byte)'-':
                     case (byte)'0':
@@ -192,6 +203,7 @@ namespace Voltaic.Serialization.Json
                             }
                             break;
                         }
+                        success = true;
                         break;
                     default:
                         return false;
