@@ -11,7 +11,7 @@ namespace Voltaic.Serialization.Json.Tests
             foreach (var data in Utf8.Tests.SingleTests.GetLittleGData())
             {
                 var value = (data[0] as TextTestData<float>).Value;
-                if (float.IsFinite(value))
+                if (!float.IsInfinity(value) && !float.IsNaN(value))
                     yield return data;
             }
 
@@ -52,7 +52,7 @@ namespace Voltaic.Serialization.Json.Tests
             foreach (var data in Utf8.Tests.DoubleTests.GetLittleGData())
             {
                 var value = (data[0] as TextTestData<double>).Value;
-                if (double.IsFinite(value))
+                if (!double.IsInfinity(value) && !double.IsNaN(value))
                     yield return data;
             }
 
