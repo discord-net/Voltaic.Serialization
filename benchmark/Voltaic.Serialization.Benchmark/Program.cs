@@ -85,22 +85,34 @@ namespace Voltaic.Serialization.Benchmark
         {
             public Config()
             {
-                // Add(Job.MediumRun.WithId("X86").With(Runtime.Core).With(Platform.X86).With(Jit.RyuJit));
-                Add(Job.LongRun.WithId("X64").With(Runtime.Core).With(Platform.X64).With(Jit.RyuJit));
+                Add(Job.MediumRun.With(Runtime.Clr).With(Jit.RyuJit).With(Platform.X86));
+                Add(Job.MediumRun.With(Runtime.Clr).With(Jit.RyuJit).With(Platform.X64));
+                Add(Job.MediumRun.With(Runtime.Clr).With(Jit.LegacyJit).With(Platform.X86));
+                Add(Job.MediumRun.With(Runtime.Clr).With(Jit.LegacyJit).With(Platform.X64));
+                Add(Job.MediumRun.With(Runtime.Core).With(Jit.RyuJit).With(Platform.X86));
+                Add(Job.MediumRun.With(Runtime.Core).With(Jit.RyuJit).With(Platform.X64));                
+                Add(Job.MediumRun.With(Runtime.CoreRT).With(Jit.RyuJit).With(Platform.X86));
+                Add(Job.MediumRun.With(Runtime.CoreRT).With(Jit.RyuJit).With(Platform.X64));                
+                Add(Job.MediumRun.With(Runtime.Mono).With(Jit.Llvm).With(Platform.X86));
+                Add(Job.MediumRun.With(Runtime.Mono).With(Jit.Llvm).With(Platform.X64));
             }
         }
         private Newtonsoft.Json.JsonSerializer _jsonNet;
-        private Voltaic.Serialization.Json.JsonSerializer _voltaic;
-        private TestData _testData;
-        private string _testString;
+        private Voltaic.Serialization.Json.JsonSerializer _voltaicJson;
+        private Voltaic.Serialization.Etf.EtfSerializer _voltaicEtf;
+        private TestData _testObject;
+        private string _testJson;
+        private ReadOnlyMemory<byte> _testEtf;
 
         [GlobalSetup]
         public void Setup()
         {
             _jsonNet = new Newtonsoft.Json.JsonSerializer();
-            _voltaic = new Voltaic.Serialization.Json.JsonSerializer();
-            _testData = new TestData();
-            _testString = _voltaic.WriteUtf16String(new TestData());
+            _voltaicJson = new Voltaic.Serialization.Json.JsonSerializer();
+            _voltaicEtf = new Voltaic.Serialization.Etf.EtfSerializer();
+            _testObject = new TestData();
+            _testJson = _voltaicJson.WriteUtf16String(new TestData());
+            _testEtf = _voltaicEtf.Write(new TestData()).AsMemory();
         }
 
         [Benchmark(Description = "Json.Net"), BenchmarkCategory("Serialize")]
@@ -109,28 +121,40 @@ namespace Voltaic.Serialization.Benchmark
             var builder = new StringBuilder(256);
             using (StringWriter stringWriter = new StringWriter(builder, CultureInfo.InvariantCulture))
             using (JsonTextWriter writer = new JsonTextWriter(stringWriter))
-                _jsonNet.Serialize(writer, _testData);
+                _jsonNet.Serialize(writer, _testObject);
             return builder.ToString();
         }
 
-        [Benchmark(Description = "Voltaic"), BenchmarkCategory("Serialize")]
-        public string SerializeVoltaic()
+        [Benchmark(Description = "Voltaic.Json"), BenchmarkCategory("Serialize")]
+        public string SerializeVoltaicJson()
         {
-            return _voltaic.WriteUtf16String(_testData);
+            return _voltaicJson.WriteUtf16String(_testObject);
+        }
+
+        [Benchmark(Description = "Voltaic.Etf"), BenchmarkCategory("Serialize")]
+        public ReadOnlyMemory<byte> SerializeVoltaicEtf()
+        {
+            return _voltaicEtf.Write(_testObject).AsMemory();
         }
 
         [Benchmark(Description = "Json.Net"), BenchmarkCategory("Deserialize")]
         public TestData DeserializeJsonNet()
         {
-            using (StringReader stringReader = new StringReader(_testString))
+            using (StringReader stringReader = new StringReader(_testJson))
             using (JsonTextReader reader = new JsonTextReader(stringReader))
                 return _jsonNet.Deserialize(reader, typeof(TestData)) as TestData;
         }
 
-        [Benchmark(Description = "Voltaic"), BenchmarkCategory("Deserialize")]
-        public TestData DeserializeVoltaic()
+        [Benchmark(Description = "Voltaic.Json"), BenchmarkCategory("Deserialize")]
+        public TestData DeserializeVoltaicJson()
         {
-            return _voltaic.ReadUtf16<TestData>(_testString.AsSpan());
+            return _voltaicJson.ReadUtf16<TestData>(_testJson.AsSpan());
+        }
+
+        [Benchmark(Description = "Voltaic.Etf"), BenchmarkCategory("Deserialize")]
+        public TestData DeserializeVoltaicEtf()
+        {
+            return _voltaicEtf.Read<TestData>(_testEtf.Span);
         }
     }
 
