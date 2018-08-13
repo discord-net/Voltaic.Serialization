@@ -99,6 +99,7 @@ namespace Voltaic.Serialization
         public override Type ValueType => typeof(TValue);
 
         private readonly List<PropertyMap> _dependencies;
+        private readonly uint _depMask;
 
         public DependentPropertyMap(
             Serializer serializer,
@@ -115,6 +116,7 @@ namespace Voltaic.Serialization
             var dependencyDict = new MemoryDictionary<PropertyMap>();
             var dependencies = new List<PropertyMap>();
             var converterProviders = new List<ConverterProvider<TModel, TValue>>();
+            uint depsMask = 0;
             for (int i = 0; i < typeSelectorAttrs.Count; i++)
             {
                 var typeSelectorAttr = typeSelectorAttrs[i];
@@ -137,9 +139,12 @@ namespace Voltaic.Serialization
 
                 if (dependencyDict.TryAdd(converterProvider.KeyProperty.Key, converterProvider.KeyProperty))
                     dependencies.Add(converterProvider.KeyProperty);
+
+                depsMask |= converterProvider.KeyProperty.IndexMask;
             }
             ConverterProviders = converterProviders;
             _dependencies = dependencies;
+            _depMask = depsMask;
         }
 
         public override bool TryRead(TModel model, ref ReadOnlySpan<byte> data, uint dependencies)
@@ -174,11 +179,14 @@ namespace Voltaic.Serialization
         private bool TryGetReadConverter(TModel model, out ValueConverter<TValue> converter, uint dependencies)
         {
             converter = default;
-            for (int i = 0; i < ConverterProviders.Count; i++)
+            if ((dependencies & _depMask) == _depMask)
             {
-                var provider = ConverterProviders[i];
-                if ((dependencies & provider.KeyProperty.IndexMask) != 0 && provider.TryGet(model, out converter))
-                    return true;
+                for (int i = 0; i < ConverterProviders.Count; i++)
+                {
+                    var provider = ConverterProviders[i];
+                    if (provider.TryGet(model, out converter))
+                        return true;
+                }
             }
             return false;
         }
