@@ -6,6 +6,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Utf8Json" Version="1.3.7" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Voltaic.Serialization/Voltaic.Serialization.csproj">

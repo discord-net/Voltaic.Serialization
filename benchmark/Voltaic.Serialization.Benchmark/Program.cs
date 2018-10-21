@@ -137,6 +137,12 @@ namespace Voltaic.Serialization.Benchmark
             return _voltaicEtf.Write(_testObject).AsMemory();
         }
 
+        [Benchmark(Description = "Utf8Json"), BenchmarkCategory("Serialize")]
+        public string SerializeUtf8Json()
+        {
+            return Utf8Json.JsonSerializer.ToJsonString(_testObject);
+        }
+
         [Benchmark(Description = "Json.Net"), BenchmarkCategory("Deserialize")]
         public TestData DeserializeJsonNet()
         {
@@ -155,6 +161,12 @@ namespace Voltaic.Serialization.Benchmark
         public TestData DeserializeVoltaicEtf()
         {
             return _voltaicEtf.Read<TestData>(_testEtf.Span);
+        }
+
+        [Benchmark(Description = "Utf8Json"), BenchmarkCategory("Deserialize")]
+        public TestData DeserializeUtf8Json()
+        {
+            return Utf8Json.JsonSerializer.Deserialize<TestData>(_testJson);
         }
     }
 
